@@ -11,3 +11,9 @@ data/dome_unseen/
 *.egg-info/
 build/
 gallery*/
+
+# --- added by the webui fork ---
+.venv/
+outputs/
+inputs/
+*.mp4

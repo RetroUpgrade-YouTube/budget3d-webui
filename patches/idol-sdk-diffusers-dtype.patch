@@ -1,0 +1,19 @@
+diff --git a/idol/conditioning.py b/idol/conditioning.py
+index 6578f81..06a85e9 100644
+--- a/idol/conditioning.py
++++ b/idol/conditioning.py
+@@ -73,7 +73,13 @@ class ImageEncoder:
+             dinov3 = AutoModel.from_pretrained(dinov3, dtype=DTYPES[dinov3_dtype])
+         self.dinov3 = dinov3.eval().requires_grad_(False).to(self.device)
+         if isinstance(flux2_vae, str):
+-            flux2_vae = AutoencoderKLFlux2.from_pretrained(flux2_vae, subfolder='vae', dtype=torch.bfloat16)
++            # diffusers < 0.40 spells this kwarg `torch_dtype`; 0.40+ renamed it `dtype`, but 0.40 also
++            # requires huggingface_hub>=1.23 while transformers 4.57.6 caps it below 1.0 -- so Budget3D's
++            # pinned 0.36.0 is the only consistent choice and needs the old spelling.
++            from importlib.metadata import version as _pkg_version
++            _dv = tuple(int(x) for x in _pkg_version('diffusers').split('.')[:2])
++            _dtype_kwarg = {'dtype': torch.bfloat16} if _dv >= (0, 40) else {'torch_dtype': torch.bfloat16}
++            flux2_vae = AutoencoderKLFlux2.from_pretrained(flux2_vae, subfolder='vae', **_dtype_kwarg)
+         self.flux2_vae = flux2_vae.eval().requires_grad_(False).to(self.device)
+ 
+     def _dinov3_tokens(self, images):

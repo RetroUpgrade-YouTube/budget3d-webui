@@ -1,0 +1,4 @@
+# Keep patch files LF so `git apply` stays exact on Windows checkouts.
+*.patch text eol=lf
+# Batch files are happiest with CRLF.
+*.bat   text eol=crlf
